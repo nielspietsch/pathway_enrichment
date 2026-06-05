@@ -1,0 +1,80 @@
+#All in Rstudio
+>install.packages("BiocManager")
+>BiocManager::install("clusterProfiler")
+>install.packages("ggplot2")
+
+>library(clusterProfiler)
+>library(ggplot2)
+
+>install.packages("readxl")
+>library(readxl)
+
+#RNAseqKIvsWT is the identifier for the respective enrichment created previously
+RNAseqKIvsWT<- read_excel("path/to/your/file.xlsx")
+>plot_RNAKIvsWT <- RNAseqKIvsWT[!is.na(RNAseqKIvsWT$GeneRatio), ]
+
+#This is the code for dot plot generation
+  
+>ggplot(plot_RNAKIvsWT, aes(x = GeneRatio, y = reorder(GO_term, GeneRatio))) +
+  geom_point(aes(size = Count, color = p.adjust)) +
+  scale_color_gradient(low = "blue", high = "red", name = "p.adjust") +
+  labs(title = "Enrichment Analysis",
+       x = "Gene Ratio",
+       y = "GO Term") +
+  theme_minimal() +
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),
+    axis.line = element_line(color = "black"),
+    plot.title = element_text(size = 16, hjust = 0.5),
+    axis.title.x = element_text(size = 14),
+    axis.title.y = element_text(size = 14),
+    legend.position = "right"
+  )
+
+# This is adjusted code for adjusted size
+  
+ggplot(plot_MSKIvsWT_up, aes(x = GeneRatio, y = reorder(GO_term, GeneRatio))) +
+     geom_point(aes(size = Count, color = p.adjust)) +
+     scale_color_gradient(low = "lightblue", high ="orange", name = "P-Value") +
+     scale_size_continuous(range = c(3, 8), name = "Count") +
+     labs(title = "KI-Empty vs. WT up",
+          x = "Gene Ratio",
+          y = "GO Term") +
+     theme_minimal() +
+     theme(
+         panel.border = element_rect(color = "black", fill = NA, size = 1),
+         axis.line = element_line(color = "black"),
+         plot.title = element_text(size = 20, hjust = 0.5),
+         axis.title.x = element_text(size = 18),
+         axis.title.y = element_text(size = 18),
+         axis.text.y = element_text(size = 16),
+         axis.text.x = element_text(size = 16),
+         legend.position = "right"
+     )
+
+# This is code for combined display of up and downregulated pathways
+
+ggplot(RNAseq_SVBPall, aes(x = GeneRatio, y = reorder(KEGG, GeneRatio))) +
+    geom_point(aes(size = Count, color = p.adjust), alpha = 0.7) +  # Adjust dot size and transparency
+    scale_color_gradient(low = "blue", high = "red", name = "-log10(P-value)") +  # Gradient color scale
+    scale_size_continuous(range = c(3, 8), name = "Count") +  # Adjust size range
+    labs(title = "SVBP-KO vs. WT",
+         x = "Gene Ratio",
+         y = "") +
+    theme_minimal() +
+    theme(
+        panel.border = element_rect(color = "black", fill = NA, size = 1),
+        axis.line = element_line(color = "black"),
+        plot.title = element_text(size = 20, hjust = 0.5),
+        axis.title.x = element_text(size = 16),  # Increase x-axis font size
+        axis.title.y = element_text(size = 14),
+        axis.text.x = element_text(size = 16),  # Increase x-axis label font size
+        axis.text.y = element_text(size = 12),  # Adjust font size of y-axis labels
+        legend.position = "right"
+    ) +
+    guides(size = guide_legend(title = "Count", order = 1),
+           color = guide_colorbar(title = "-log10(P-value)", order = 2)) +  # Change to colorbar for gradient
+    facet_grid(Regulation ~ ., scales = "free_y", space = "free") +  # Separate by Regulation
+    theme(strip.text.y = element_text(size = 14, face = "bold"),
+          panel.spacing = unit(1, "lines"))
+  
